@@ -43,17 +43,21 @@
       <item>
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>版本配置路径选择:</string>
+         <string>    版本配置选择:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEditVersionConfig"/>
+       <widget class="QLineEdit" name="lineEditVersionConfig">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="pushButtonVersionConfig">
         <property name="text">
-         <string>路径选择</string>
+         <string>文件选择</string>
         </property>
        </widget>
       </item>
@@ -92,7 +96,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEditScriptPath"/>
+       <widget class="QLineEdit" name="lineEditScriptDir">
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="pushButtonScriptPath">
@@ -236,7 +244,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButtonImport">
+       <widget class="QPushButton" name="pushButtonExport">
         <property name="text">
          <string>导出</string>
         </property>
