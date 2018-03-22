@@ -1,0 +1,14 @@
+{
+    "zzz": {
+        "path"  : "D:\\mycode\\exe\\pubdy3d",
+        "version": ["0.0.1"]
+    },
+    "abcd": {
+        "path"  : "D:\\mycode\\exe\\pubdy3d",
+        "version": ["0.0.1", "0.3.1"]
+    },
+    "pubtime": {
+        "path"  : "D:\\mycode\\exe\\pubdy3d",
+        "version": ["0.0.1", "0.2.1", "1.2.1"]
+    }
+}
