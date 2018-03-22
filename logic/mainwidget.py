@@ -12,9 +12,9 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from ui import mainwidget
 from . import misc
 
-PERSON_CONFIG = "test/person.config"
-COMMON_CONFIG = "test/common.config"
-ALL_MODULE_JSON = "test/module.all"
+PERSON_CONFIG = "config/person.config"
+COMMON_CONFIG = "config/common.config"
+ALL_MODULE_JSON = "config/module.all"
 LST_PUB_TYPE = ["pubdy3d"]
 LST_PROJECT = ["MarsEditor", "DramaEditor", "UIEditor", "T2MapEditor"]
 
@@ -71,6 +71,9 @@ class CMainWidget(QtWidgets.QMainWindow, mainwidget.Ui_MainWindow):
         sLastType = self.m_PersonConfig.get("LastPubType", "")
         if sLastType:
             self.comboBoxPubType.setCurrentText(sLastType)
+        sModuleFile = os.path.join("config", sLastType + ".module")
+        self.m_AllModuleInfo = misc.JsonLoad(sModuleFile, {})
+
         dTypeInfo = self.m_PersonConfig.get(sLastType, {})
         sLastProject = dTypeInfo.get("LastProject", "")
         if sLastProject:
@@ -79,20 +82,29 @@ class CMainWidget(QtWidgets.QMainWindow, mainwidget.Ui_MainWindow):
         scriptDir = dProjectInfo.get("ScriptDir", os.getcwd())
         self.lineEditScriptDir.setText(scriptDir)
 
-        sModuleFile = os.path.join("test", sLastType + ".module")
-        self.m_AllModuleInfo = misc.JsonLoad(sModuleFile, {})
-
-        # sPubType = self.comboBoxPubType.currentText()
-        # self.m_PubPath = self.m_CommonConfig[sPubType]
-        # self.ShowModuleTableWidget()
+        self.InitModuleTreeWidget()
 
 
     def InitConnect(self):
         self.pushButtonVersionConfig.clicked.connect(self.ChooseVersionConfig)
         self.pushButtonScriptPath.clicked.connect(self.ChooseSciptPath)
         self.pushButtonExport.clicked.connect(self.ModuleExport)
+        self.comboBoxPubType.currentTextChanged.connect(self.ChangePubType)
+        self.comboBoxProject.currentTextChanged.connect(self.ChangeProject)
 
 
+    def ChangePubType(self, sPubType):
+        pass
+
+
+    def ChangeProject(self, sProject):
+        sPubType = self.comboBoxPubType.currentText()
+        dTypeInfo = self.m_PersonConfig.get(sPubType, {})
+        dProjectInfo = dTypeInfo.get(sProject, {})
+        scriptDir = dProjectInfo.get("ScriptDir", os.getcwd())
+        self.lineEditScriptDir.setText(scriptDir)
+
+        
     def ChooseVersionConfig(self):
         """版本配置文件选择"""
         sFile = QtWidgets.QFileDialog.getOpenFileName(self, "版本配置文件选择", "", "Json文件(*.json)")[0]
@@ -136,11 +148,12 @@ class CMainWidget(QtWidgets.QMainWindow, mainwidget.Ui_MainWindow):
         self.m_ModuleList = sorted(self.m_ModuleVersion.items(), key=lambda x:x[0])
         self.tableWidgetModule.clearContents()
         self.tableWidgetModule.setRowCount(len(self.m_ModuleList))
-        for iIndex, (sModule, sVersion) in enumerate(self.m_ModuleList):
-            oModuleItem = QtWidgets.QTableWidgetItem(sModule)
-            oVersionItem = QtWidgets.QTableWidgetItem(sVersion)
-            self.tableWidgetModule.setItem(iIndex, 0, oModuleItem)
-            self.tableWidgetModule.setItem(iIndex, 1, oVersionItem)
+        self.tableWidgetModule.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+        for iRow, lstInfo in enumerate(self.m_ModuleList):
+            for iCol, value in enumerate(lstInfo):
+                oItem = QtWidgets.QTableWidgetItem(value)
+                oItem.setTextAlignment(QtCore.Qt.AlignCenter)
+                self.tableWidgetModule.setItem(iRow, iCol, oItem)
 
 
     def CreateInfo(self, dInfo, key, defalult=None):
@@ -169,7 +182,13 @@ class CMainWidget(QtWidgets.QMainWindow, mainwidget.Ui_MainWindow):
 
 
     def InitModuleTreeWidget(self):
-        pass
+        """初始化模块树结构"""
+        self.treeWidgetModule.clear()
+        lstAllModule = sorted(self.m_AllModuleInfo.items(), key=lambda x:x[0])
+        for (sModule, dVersion) in lstAllModule:
+            oModuleTreeWidgetItem = QtWidgets.QTreeWidgetItem(self.treeWidgetModule, [sModule,])
+            for sVersion in dVersion["version"]:
+                QtWidgets.QTreeWidgetItem(oModuleTreeWidgetItem, [sVersion,])
 
 
 

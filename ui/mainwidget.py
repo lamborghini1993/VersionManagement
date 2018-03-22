@@ -154,7 +154,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "版本管理工具"))
         self.label_2.setText(_translate("MainWindow", "公共类型:"))
         self.label_4.setText(_translate("MainWindow", "    版本配置选择:"))
         self.pushButtonVersionConfig.setText(_translate("MainWindow", "文件选择"))
