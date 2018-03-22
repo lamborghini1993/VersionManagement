@@ -7,6 +7,7 @@
 
 import json
 import os
+import time
 
 def JsonDump(data, path, **myArgs):
     dJsonArgs = {
@@ -27,3 +28,12 @@ def JsonLoad(path, default=None, **myArgs):
     with open(path, "r", encoding=coding) as fp:
         default = json.load(fp, **myArgs)
     return default
+
+
+def Time2Str(ti=-1, timeformat="%Y-%m-%d %H:%M:%S"):
+    if ti < 0:
+        ltime = time.localtime()
+    else:
+        ltime = time.localtime(ti)
+    strtime = time.strftime(timeformat, ltime)
+    return strtime
