@@ -1,20 +1,5 @@
 {
-    "zzz": {
-        "version": "0.0.1",
-        "rely"  : {
-            "pubtime.py": "1.2.1"
-        }
-    },
-    "abcd.py": {
-        "rely"  : {
-            "pubtime.py": "1.2.1",
-            "zzz": "0.0.1"
-        },
-        "version": "0.3.1"
-    },
-    "pubtime.py": {
-        "version": "1.2.1",
-        "rely"  : {
-        }
-    }
+    "abcd.py": "0.3.1",
+    "pubtime.py": "1.2.1",
+    "zzz": "0.0.1"
 }

@@ -125,23 +125,11 @@ class CMainWidget(QtWidgets.QMainWindow, mainwidget.Ui_MainWindow):
             self.lineEditScriptDir.setText(sDir)
 
 
-    def AddMoudleInfo(self, sModule, sVersion):
-        if sModule in self.m_ModuleVersion:
-            if self.m_ModuleVersion[sModule] != sVersion:
-                print("%s存在两个版本有冲突:%s %s" % (sModule, sVersion, self.m_ModuleVersion[sModule]))
-            return
-        self.m_ModuleVersion[sModule] = sVersion
-
-
     def InitModuleTableWidget(self, sFile):
         """从配置读取版本信息，然后加载"""
         dModuleInfo = misc.JsonLoad(sFile, {})
-        for sModule, dInfo in dModuleInfo.items():
-            sVersion = dInfo["version"]
-            self.AddMoudleInfo(sModule, sVersion)
-            dRely = dInfo.get("rely", {})
-            for key, value in dRely.items():
-                self.AddMoudleInfo(key, value)
+        for sModule, sVersion in dModuleInfo.items():
+            self.m_ModuleVersion[sModule] = sVersion
 
 
     def ShowModuleTableWidget(self):
