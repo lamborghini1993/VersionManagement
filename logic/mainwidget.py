@@ -7,6 +7,7 @@
 
 import sys
 import os
+import shutil
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from ui import mainwidget
@@ -28,6 +29,7 @@ class CMainWidget(QtWidgets.QMainWindow, mainwidget.Ui_MainWindow):
         self.m_AllModuleInfo = {}   #所有模块的所有版本信息
         self.m_ModuleVersion = {}   #当前模块对应的版本
         self.m_ModuleList = []      #[(模块名, 版本), ]
+        self.m_FirstExport = True
         self.InitConfig()
         self.InitUI()
         self.InitConnect()
@@ -43,14 +45,14 @@ class CMainWidget(QtWidgets.QMainWindow, mainwidget.Ui_MainWindow):
         sProject = self.comboBoxProject.currentText()
 
         self.m_PersonConfig["LastPubType"] = sPubType
-        dPersonPubType = self.CreateInfo(self.m_PersonConfig, sPubType)
+        dPersonPubType = self.m_PersonConfig.setdefault(sPubType, {})
         dPersonPubType["LastProject"] = sProject
-        dPersonProject = self.CreateInfo(dPersonPubType, sProject)
+        dPersonProject = dPersonPubType.setdefault(sProject, {})
         dPersonProject["ScriptDir"] = self.lineEditScriptDir.text()
 
-        dCommonPubType = self.CreateInfo(self.m_CommonConfig, sPubType)
-        dCommonProject = self.CreateInfo(dCommonPubType, sProject)
-        lstVersionRecord = self.CreateInfo(dCommonProject, "VersionRecord", [])
+        dCommonPubType = self.m_CommonConfig.setdefault(sPubType, {})
+        dCommonProject = dCommonPubType.setdefault(sProject, {})
+        lstVersionRecord = dCommonProject.setdefault("VersionRecord", [])
   
         sVersionName = self.lineEditVersionConfig.text()
         sVersionName = os.path.split(sVersionName)[1]
@@ -68,14 +70,13 @@ class CMainWidget(QtWidgets.QMainWindow, mainwidget.Ui_MainWindow):
         self.comboBoxPubType.addItems(LST_PUB_TYPE)
         self.comboBoxProject.addItems(LST_PROJECT)
 
-        sLastType = self.m_PersonConfig.get("LastPubType", "")
-        if sLastType:
-            self.comboBoxPubType.setCurrentText(sLastType)
+        sLastType = self.m_PersonConfig.get("LastPubType", LST_PUB_TYPE[0])
+        self.comboBoxPubType.setCurrentText(sLastType)
         sModuleFile = os.path.join("config", sLastType + ".module")
         self.m_AllModuleInfo = misc.JsonLoad(sModuleFile, {})
 
         dTypeInfo = self.m_PersonConfig.get(sLastType, {})
-        sLastProject = dTypeInfo.get("LastProject", "")
+        sLastProject = dTypeInfo.get("LastProject", LST_PROJECT[0])
         if sLastProject:
             self.comboBoxProject.setCurrentText(sLastProject)
         dProjectInfo = dTypeInfo.get(sLastProject, {})
@@ -156,28 +157,33 @@ class CMainWidget(QtWidgets.QMainWindow, mainwidget.Ui_MainWindow):
                 self.tableWidgetModule.setItem(iRow, iCol, oItem)
 
 
-    def CreateInfo(self, dInfo, key, defalult=None):
-        """key不在dInfo中，用defalut值创建key，并返回"""
-        if defalult is None:
-            defalult = {}
-        if not key in dInfo:
-            dInfo[key] = defalult
-        return dInfo[key]
-
-
     def ModuleExport(self):
         """模块导出"""
         sPubType = self.comboBoxPubType.currentText()
         destinationDir = os.path.join(self.lineEditScriptDir.text(), sPubType)
-        # if not os.path.exists(destinationDir):
-        #     os.makedirs(destinationDir)
+        if self.m_FirstExport:
+            oldDestionDir = destinationDir + ".bak"
+            if os.path.exists(oldDestionDir):
+                shutil.rmtree(oldDestionDir)
+            if os.path.exists(destinationDir):
+                shutil.move(destinationDir, oldDestionDir)
+        else:
+            if os.path.exists(destinationDir):
+                shutil.rmtree(destinationDir)
+        os.makedirs(destinationDir)
+
         for (sModule, sVersion) in self.m_ModuleList:
             sourcePath = self.m_AllModuleInfo[sModule]["path"]
             sourceFile = os.path.join(sourcePath, sModule, sVersion)
-            destinationFile = os.path.join(destinationDir, sModule, sVersion)
-            print("source:", sourceFile)
-            print("\t", destinationFile)
+            destinationFile = os.path.join(destinationDir, sModule)
+            if sModule.endswith(".py"):
+                sourceFile = os.path.join(sourceFile, sModule)
+                shutil.copy(sourceFile, destinationFile)
+            else:
+                shutil.copytree(sourceFile, destinationFile)
+            print("%s ->\n\t%s" % (sourceFile, destinationFile))
 
+        self.m_FirstExport = False
         self.SaveConfig()
 
 
