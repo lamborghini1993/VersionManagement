@@ -6,13 +6,17 @@
 """
 
 import os
+import shutil
 
-sCurPath = os.getcwd()
-print(sCurPath)
+sName = "VersionManagement"
 
 sCmd = "pyinstaller -w \
--n VersionManagement \
+-n %s \
 -i=./image/main.ico \
--F ./main.py"
+-F ./main.py" % sName
 
 os.system(sCmd)
+shutil.move("dist/%s.exe" % sName, "%s.exe" % sName)
+shutil.rmtree("build")
+shutil.rmtree("dist")
+os.remove("%s.spec" % sName)
